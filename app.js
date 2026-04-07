@@ -13,10 +13,10 @@
 
   function loadLocal() {
     try {
-      return JSON.parse(localStorage.getItem(LS_KEY)) ||
-        { evidence: [], impulses: [], todoOverrides: {} };
+      const d = JSON.parse(localStorage.getItem(LS_KEY)) || {};
+      return { evidence: [], impulses: [], todoOverrides: {}, squadNotes: {}, customTodos: [], ...d };
     } catch {
-      return { evidence: [], impulses: [], todoOverrides: {} };
+      return { evidence: [], impulses: [], todoOverrides: {}, squadNotes: {}, customTodos: [] };
     }
   }
   function saveLocal(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
@@ -25,9 +25,13 @@
 
   // ── Merged data ─────────────────────────────────────────────
   function getTodos() {
-    return STAFF_DATA.todos.map(t => ({
+    const base = STAFF_DATA.todos.map(t => ({
       ...t, status: local.todoOverrides[t.id] || t.status
     }));
+    const custom = (local.customTodos || []).map(t => ({
+      ...t, status: local.todoOverrides[t.id] || t.status
+    }));
+    return [...base, ...custom];
   }
   function getAllEvidence() {
     return [...STAFF_DATA.evidence, ...local.evidence]
@@ -71,7 +75,7 @@
 
   // ── Routing ─────────────────────────────────────────────────
   const SECTIONS = [
-    "overview", "plan", "actions", "journal",
+    "overview", "plan", "actions", "squads", "journal",
     "evidence", "impulses", "stakeholders", "pause"
   ];
   let current = "overview";
@@ -92,7 +96,8 @@
   // ── Render ──────────────────────────────────────────────────
   const renderers = {
     overview: renderOverview, plan: renderPlan,
-    actions: renderActions,   journal: renderJournal,
+    actions: renderActions,   squads: renderSquads,
+    journal: renderJournal,
     evidence: renderEvidence, impulses: renderImpulses,
     stakeholders: renderStakeholders, pause: renderPause
   };
@@ -223,17 +228,20 @@
     const todos = getTodos();
     const phase = getCurrentPhase();
     const cols = [
-      { key: "in-progress", label: "In Progress", icon: "🔵" },
       { key: "pending",     label: "To Do",       icon: "⬜" },
+      { key: "in-progress", label: "In Progress", icon: "🔵" },
       { key: "done",        label: "Done",        icon: "✅" }
     ];
 
     el.innerHTML = `
       <div class="page-header"><h2>Actions</h2><p>Manage your action items across all workstreams</p></div>
-      <div class="filter-tabs" id="action-filters">
-        <button class="filter-tab active" data-filter="current">Current Phase</button>
-        <button class="filter-tab" data-filter="all">All Phases</button>
-        <button class="filter-tab" data-filter="urgent">Urgent Only</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg)">
+        <div class="filter-tabs" id="action-filters" style="margin-bottom:0">
+          <button class="filter-tab active" data-filter="current">Current Phase</button>
+          <button class="filter-tab" data-filter="all">All Phases</button>
+          <button class="filter-tab" data-filter="urgent">Urgent Only</button>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('todo')" style="white-space:nowrap">＋ Add Action</button>
       </div>
       <div class="kanban" id="kanban-board"></div>`;
 
@@ -436,6 +444,112 @@
       </div>`;
   }
 
+  // ── Section: Squads ──────────────────────────────────────────
+  function renderSquads(el) {
+    const squads = STAFF_DATA.squads || [];
+    if (!local.squadNotes) { local.squadNotes = {}; saveLocal(local); }
+
+    el.innerHTML = `
+      <div class="page-header"><h2>Squads</h2><p>Your squads — notes, context, decisions, and everything you need to retain</p></div>
+      <div class="squad-tabs" id="squad-tabs">
+        ${squads.map((s, i) => `
+          <button class="squad-tab ${i===0?'active':''}" data-squad="${s.id}" style="--squad-clr:${s.colour}">
+            <span class="squad-tab-dot" style="background:${s.colour}"></span>${s.name}
+          </button>`).join("")}
+      </div>
+      <div id="squad-content"></div>`;
+
+    function getSquadNotes(sid) {
+      return (local.squadNotes[sid] || [])
+        .sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || b.updated.localeCompare(a.updated));
+    }
+
+    function renderDetail(sid) {
+      const sq = squads.find(s => s.id === sid);
+      if (!sq) return;
+      const notes = getSquadNotes(sid);
+      document.getElementById("squad-content").innerHTML = `
+        <div class="card" style="border-left:4px solid ${sq.colour}">
+          <div class="card-header">
+            <div><h3>${sq.name}</h3><div style="font-size:.8rem;color:var(--text-secondary);margin-top:2px">${sq.description}</div></div>
+            <button class="btn btn-primary" onclick="openSquadNoteModal('${sq.id}')">＋ Add Note</button>
+          </div>
+          <div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;margin-top:var(--space-sm)">
+            ${sq.members.map(m => `<span style="padding:2px 10px;background:var(--accent-light);color:var(--accent-dark);border-radius:99px;font-size:.7rem;font-weight:600">${m}</span>`).join("")}
+          </div>
+        </div>
+        ${notes.length ? `<div class="squad-notes-grid">${notes.map(n => `
+          <div class="card squad-note-card ${n.pinned?'pinned':''}">
+            <div class="squad-note-header">
+              <div class="squad-note-title">${escapeHtml(n.title)}</div>
+              <div class="squad-note-actions">
+                <button class="icon-btn" onclick="togglePinNote('${sq.id}','${n.id}')" title="${n.pinned?'Unpin':'Pin'}">${n.pinned?'📌':'📍'}</button>
+                <button class="icon-btn" onclick="openSquadNoteModal('${sq.id}','${n.id}')" title="Edit">✏️</button>
+                <button class="icon-btn" onclick="deleteSquadNote('${sq.id}','${n.id}')" title="Delete">🗑️</button>
+              </div>
+            </div>
+            <div class="squad-note-body">${formatNoteContent(n.content)}</div>
+            <div class="squad-note-footer">
+              ${n.tags?n.tags.map(t=>`<span class="tag ${t}">${t}</span>`).join(""):''}
+              <span style="font-size:.65rem;color:var(--text-secondary);margin-left:auto">${formatDate(n.updated)}</span>
+            </div>
+          </div>`).join("")}</div>` : `
+          <div class="card empty-state"><div class="icon">📝</div><p>No notes yet for ${sq.name}. Add your first note to start building context.</p></div>`}`;
+    }
+
+    if (squads.length) renderDetail(squads[0].id);
+    el.querySelector("#squad-tabs")?.addEventListener("click", e => {
+      const btn = e.target.closest(".squad-tab");
+      if (!btn) return;
+      el.querySelectorAll(".squad-tab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderDetail(btn.dataset.squad);
+    });
+  }
+
+  function escapeHtml(str) { const d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
+
+  function formatNoteContent(c) {
+    return escapeHtml(c).replace(/\n/g,"<br>").replace(/^- (.+)/gm,"• $1")
+      .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/`(.+?)`/g,"<code>$1</code>");
+  }
+
+  window.openSquadNoteModal = function (squadId, noteId) {
+    const overlay = document.getElementById("modal-overlay");
+    const modal = document.getElementById("modal");
+    const existing = noteId ? (local.squadNotes[squadId]||[]).find(n=>n.id===noteId) : null;
+    modal.innerHTML = `
+      <h3>${existing?'✏️ Edit Note':'📝 New Note'}</h3>
+      <form id="modal-form">
+        <div class="form-group"><label>Title</label><input type="text" name="title" value="${existing?escapeHtml(existing.title):''}" placeholder="e.g., Architecture decision, meeting notes" required></div>
+        <div class="form-group"><label>Content</label><textarea name="content" rows="10" placeholder="Supports **bold**, \`code\`, - bullet points" required>${existing?existing.content:''}</textarea></div>
+        <div class="form-group"><label>Tags (comma-separated, optional)</label><input type="text" name="tags" value="${existing&&existing.tags?existing.tags.join(', '):''}" placeholder="e.g., architecture, decision"></div>
+        <div class="btn-row"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
+      </form>`;
+    modal.querySelector("#modal-form").onsubmit = e => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      if (!local.squadNotes[squadId]) local.squadNotes[squadId] = [];
+      const tags = fd.get("tags")?fd.get("tags").split(",").map(t=>t.trim().toLowerCase()).filter(Boolean):[];
+      const now = today();
+      if (existing) { Object.assign(existing,{title:fd.get("title"),content:fd.get("content"),tags,updated:now}); }
+      else { local.squadNotes[squadId].push({id:"note-"+Date.now(),title:fd.get("title"),content:fd.get("content"),tags,pinned:false,created:now,updated:now}); }
+      saveLocal(local); closeModal(); render();
+    };
+    overlay.classList.add("open");
+  };
+
+  window.togglePinNote = function (sid,nid) {
+    const n = (local.squadNotes[sid]||[]).find(n=>n.id===nid);
+    if (n) { n.pinned=!n.pinned; saveLocal(local); render(); }
+  };
+
+  window.deleteSquadNote = function (sid,nid) {
+    if (!confirm("Delete this note?")) return;
+    local.squadNotes[sid] = (local.squadNotes[sid]||[]).filter(n=>n.id!==nid);
+    saveLocal(local); render();
+  };
+
   // ── Modals ──────────────────────────────────────────────────
   window.openModal = function (type) {
     const overlay = document.getElementById("modal-overlay");
@@ -475,6 +589,31 @@
           <div class="btn-row"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
         </form>`
     };
+
+    if (type === "todo") {
+      const phase = getCurrentPhase();
+      modal.innerHTML = `
+        <h3>＋ Add Action Item</h3>
+        <form id="modal-form">
+          <div class="form-group"><label>Title</label><input type="text" name="title" placeholder="e.g., Review deployment pipeline" required></div>
+          <div class="form-group"><label>Description</label><textarea name="description" placeholder="What needs to happen and why?" required></textarea></div>
+          <div class="grid-2">
+            <div class="form-group"><label>Priority</label><select name="priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="urgent">Urgent</option><option value="low">Low</option></select></div>
+            <div class="form-group"><label>Phase</label><select name="phase">${STAFF_DATA.config.phases.map(p=>`<option value="${p.id}" ${p.id===phase.id?"selected":""}>${p.name}</option>`).join("")}</select></div>
+          </div>
+          <div class="form-group"><label>Week</label><input type="number" name="week" min="1" max="52" value="${Math.ceil(getDaysIn()/7)}" required></div>
+          <div class="btn-row"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-primary">Add</button></div>
+        </form>`;
+      overlay.classList.add("open");
+      modal.querySelector("#modal-form").onsubmit = e => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        if (!local.customTodos) local.customTodos = [];
+        local.customTodos.push({id:"custom-"+Date.now(),title:fd.get("title"),description:fd.get("description"),priority:fd.get("priority"),phase:parseInt(fd.get("phase")),week:parseInt(fd.get("week")),status:"pending"});
+        saveLocal(local); closeModal(); render();
+      };
+      return;
+    }
 
     modal.innerHTML = forms[type] || "";
     overlay.classList.add("open");

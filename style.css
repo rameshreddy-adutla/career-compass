@@ -485,3 +485,57 @@ body {
 /* ── Animation ───────────────────────────────────────────────── */
 @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 .fade-in { animation: fadeIn 300ms ease; }
+
+/* ── Squads ──────────────────────────────────────────────────── */
+.squad-tabs {
+  display: flex; gap: var(--space-sm); margin-bottom: var(--space-lg); flex-wrap: wrap;
+}
+.squad-tab {
+  display: flex; align-items: center; gap: var(--space-sm);
+  padding: 8px 20px; border: 2px solid var(--border);
+  border-radius: var(--radius-md); font-size: .875rem; font-weight: 600;
+  background: var(--bg-card); color: var(--text-secondary);
+  cursor: pointer; transition: all var(--transition);
+}
+.squad-tab:hover {
+  border-color: var(--squad-clr, var(--accent)); color: var(--text);
+}
+.squad-tab.active {
+  border-color: var(--squad-clr, var(--accent)); background: var(--bg-card); color: var(--text);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--squad-clr, var(--accent)) 20%, transparent);
+}
+.squad-tab-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+.squad-notes-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-md);
+}
+.squad-note-card {
+  display: flex; flex-direction: column;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.squad-note-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+.squad-note-card.pinned { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-light); }
+.squad-note-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--space-sm); margin-bottom: var(--space-sm);
+}
+.squad-note-title { font-size: .95rem; font-weight: 700; line-height: 1.3; }
+.squad-note-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.icon-btn {
+  background: none; border: none; cursor: pointer; font-size: .85rem;
+  padding: 4px; border-radius: var(--radius-sm);
+  transition: background var(--transition); line-height: 1;
+}
+.icon-btn:hover { background: var(--border-light); }
+.squad-note-body {
+  font-size: .83rem; color: var(--text-secondary); line-height: 1.6; flex: 1;
+  max-height: 200px; overflow-y: auto; margin-bottom: var(--space-sm);
+}
+.squad-note-body code {
+  background: var(--border-light); padding: 1px 5px; border-radius: 3px; font-size: .8em;
+}
+.squad-note-footer {
+  display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap;
+  padding-top: var(--space-sm); border-top: 1px solid var(--border-light);
+}
+@media (max-width: 768px) { .squad-notes-grid { grid-template-columns: 1fr; } }

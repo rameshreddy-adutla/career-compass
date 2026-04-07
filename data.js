@@ -162,6 +162,41 @@ const STAFF_DATA = {
   ],
 
   // ┌──────────────────────────────────────────────────────────┐
+  // │  SQUADS                                                  │
+  // │                                                          │
+  // │  Your teams. Each squad has a notes section for          │
+  // │  capturing decisions, context, meeting notes — anything  │
+  // │  you need to retain.                                     │
+  // └──────────────────────────────────────────────────────────┘
+
+  squads: [
+    {
+      id: "core-platform",
+      name: "Core Platform",
+      description: "Payment processing, retry logic, and core infrastructure",
+      colour: "#8b5cf6",
+      members: ["Jordan", "Sam", "Priya"],
+      notes: []
+    },
+    {
+      id: "integrations",
+      name: "Integrations",
+      description: "Third-party payment provider integrations and webhooks",
+      colour: "#3b82f6",
+      members: ["Sam", "Kai"],
+      notes: []
+    },
+    {
+      id: "new-initiative",
+      name: "New Initiative",
+      description: "New payment methods MVP — buy now, pay later",
+      colour: "#f59e0b",
+      members: ["Marcus", "Elena"],
+      notes: []
+    }
+  ],
+
+  // ┌──────────────────────────────────────────────────────────┐
   // │  EVIDENCE                                                │
   // │                                                          │
   // │  Categories: coaching | architecture | standards          │
