@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Engineer OS</title>
+  <meta name="description" content="A personal operating system for engineers transitioning to Staff+ roles. Track your 30/60/90 plan, collect evidence, catch impulses, and grow as a multiplier.">
+  <meta property="og:title" content="Staff Engineer OS">
+  <meta property="og:description" content="A zero-dependency dashboard for engineers transitioning to Staff+ roles.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation">☰</button>
+
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header">
+      <h1>Staff Engineer OS</h1>
+      <div class="role" id="sidebar-role">Your Name</div>
+      <div class="phase-badge" id="phase-badge">Loading…</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="section-label">Dashboard</div>
+      <a data-section="overview" role="button" tabindex="0"><span class="icon">📊</span> Overview</a>
+      <a data-section="plan" role="button" tabindex="0"><span class="icon">📋</span> 30 / 60 / 90 Plan</a>
+      <a data-section="actions" role="button" tabindex="0"><span class="icon">✅</span> Actions</a>
+
+      <div class="section-label">Track</div>
+      <a data-section="journal" role="button" tabindex="0"><span class="icon">📓</span> Weekly Journal</a>
+      <a data-section="evidence" role="button" tabindex="0"><span class="icon">🏆</span> Evidence</a>
+      <a data-section="impulses" role="button" tabindex="0"><span class="icon">🛑</span> Impulse Log</a>
+
+      <div class="section-label">Reference</div>
+      <a data-section="stakeholders" role="button" tabindex="0"><span class="icon">👥</span> Stakeholders</a>
+      <a data-section="pause" role="button" tabindex="0"><span class="icon">⏸️</span> PAUSE Framework</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">🌙 Dark</button>
+      <button class="theme-toggle" onclick="exportLocalData()" aria-label="Export data">📥 Export</button>
+    </div>
+  </nav>
+
+  <main class="main" id="content" role="main"></main>
+
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal" id="modal"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
