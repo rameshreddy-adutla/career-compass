@@ -1,10 +1,10 @@
 # Career Compass roadmap
 
-Proposed work for a personal engineering-development tool. Verify scope against any work already completed outside this repository before starting an evaluation session. Estimates describe future work, not hours already worked.
+Proposed work for a personal career-development tool. Verify scope against any work already completed outside this repository before starting an evaluation session. Estimates describe future work, not hours already worked.
 
 ## 1. Editable development cycles and goals (8 to 10 hours)
 
-Create and revise a cycle in the UI, define goals and observable outcomes, and connect actions to them. Preserve existing records and distinguish changing a plan from rewriting its history. Let users describe their own career expectations.
+Create and revise a cycle in the UI, define goals and observable outcomes, and connect actions to them. Preserve existing records and distinguish changing a plan from rewriting its history. Let users describe their own career expectations, including starting a first job, growing as an individual contributor, moving into management or leading a function.
 
 Check: create a cycle and goal, add actions, revise the plan, reload and inspect the previous plan.
 

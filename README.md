@@ -1,8 +1,14 @@
 # Career Compass
 
-A personal career-progression workspace for engineers. Plan a development cycle, practise a skill, collect evidence and reflect on what to do next.
+A personal career-progression workspace for anyone, from freshers to experienced professionals and leaders. Plan a development cycle, practise a skill, collect evidence and reflect on what to do next.
 
-Previously called Staff Engineer OS. This is the same repository and history, with a broader purpose across engineering career stages.
+Useful across product, engineering, management, Head of roles and other career paths. Set goals around your own role and expectations; the app does not prescribe one promotion ladder.
+
+Built with plain HTML, CSS and JavaScript. The original repository history is preserved.
+
+Repository: https://github.com/rameshreddy-adutla/career-compass
+
+Live demo: https://rameshreddy-adutla.github.io/career-compass/
 
 ## Run locally
 
@@ -29,9 +35,13 @@ All bundled people, groups, stories and achievements are fictional examples. The
 
 ## Saved work
 
-Local changes are stored in the browser. The existing `staff-engineer-os` storage key, reference IDs and `STAFF_DATA` variable are retained so the rename does not create a new workspace. Browser storage is specific to the origin and browser profile. Keep an export before changing hosting URLs; an export cannot currently be imported through the app.
+Local changes use the `career-compass` browser-storage key. Existing work and theme settings are read through `legacy-storage.js` when the new keys are absent. Existing keys are left untouched. New edits use the new keys. Reference IDs stay stable so saved actions and group notes remain accessible. Browser storage is specific to the origin and browser profile. Keep an export before changing hosting URLs; an export cannot currently be imported through the app.
 
 The app has no account system or backend. It makes no network requests for user data. Avoid entering confidential workplace details or other people's personal information. `data.js` is public if you publish the site.
+
+## Check compatibility
+
+Run `node --test tests/legacy-storage.test.cjs` to check old saved work and theme settings remain readable without rewriting them.
 
 ## Next work
 

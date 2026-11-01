@@ -1,10 +1,10 @@
 // Fictional career-progression demo. No employer or real-person records.
-// Legacy reference IDs and STAFF_DATA are retained for saved-data compatibility.
-const STAFF_DATA = {
+// Reference IDs are retained for saved-data compatibility.
+const CAREER_DATA = {
   "config": {
-    "name": "Demo Engineer",
-    "role": "Software Engineer",
-    "area": "Fictional learning project",
+    "name": "Demo Learner",
+    "role": "Early-career professional",
+    "area": "Fictional practice project",
     "startDate": "2026-11-01",
     "phases": [
       {
@@ -216,7 +216,7 @@ const STAFF_DATA = {
     {
       "id": "learning-partner",
       "name": "Practice Partner (fictional)",
-      "role": "Software Engineer",
+      "role": "Practice Partner",
       "squad": "Demo Project",
       "ring": "peer",
       "engagement": "Review a small practice task together.",
@@ -251,10 +251,10 @@ const STAFF_DATA = {
         "Complete a small practice task"
       ],
       "days": {
-        "sunday": "Worked through a fictional background-job example and recorded open questions."
+        "sunday": "Worked through a fictional project-planning example and recorded open questions."
       },
       "reflection": {
-        "impact": "Practised explaining the difference between retries and duplicate processing.",
+        "impact": "Practised explaining a project goal, a constraint and the next useful step.",
         "coaching": "Asked a practice partner to explain the idea back.",
         "relationships": "Agreed on a short feedback session with the fictional mentor.",
         "selfAwareness": "Noticed an urge to rewrite the example before defining the learning goal."
@@ -295,10 +295,10 @@ const STAFF_DATA = {
   "evidence": [
     {
       "date": "2026-11-01",
-      "category": "architecture",
+      "category": "delivery",
       "who": "Practice Partner (fictional)",
-      "summary": "Explained retry tradeoffs in a practice exercise",
-      "detail": "Fictional example: compared a retry loop with an idempotent background job. This is practice evidence, not a workplace achievement."
+      "summary": "Explained a planning tradeoff in a practice exercise",
+      "detail": "Fictional example: compared two ways to organise a short practice project. This is practice evidence, not a workplace achievement."
     }
   ],
   "impulses": [

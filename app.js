@@ -9,11 +9,11 @@
   "use strict";
 
   // ── LocalStorage ────────────────────────────────────────────
-  const LS_KEY = "staff-engineer-os";
+  const LS_KEY = "career-compass";
 
   function loadLocal() {
     try {
-      const d = JSON.parse(localStorage.getItem(LS_KEY)) || {};
+      const d = JSON.parse(CareerCompassLegacy.readWorkspace()) || {};
       return { evidence: [], impulses: [], todoOverrides: {}, squadNotes: {}, customTodos: [], ...d };
     } catch {
       return { evidence: [], impulses: [], todoOverrides: {}, squadNotes: {}, customTodos: [] };
@@ -25,7 +25,7 @@
 
   // ── Merged data ─────────────────────────────────────────────
   function getTodos() {
-    const base = STAFF_DATA.todos.map(t => ({
+    const base = CAREER_DATA.todos.map(t => ({
       ...t, status: local.todoOverrides[t.id] || t.status
     }));
     const custom = (local.customTodos || []).map(t => ({
@@ -34,11 +34,11 @@
     return [...base, ...custom];
   }
   function getAllEvidence() {
-    return [...STAFF_DATA.evidence, ...local.evidence]
+    return [...CAREER_DATA.evidence, ...local.evidence]
       .sort((a, b) => b.date.localeCompare(a.date));
   }
   function getAllImpulses() {
-    return [...STAFF_DATA.impulses, ...local.impulses]
+    return [...CAREER_DATA.impulses, ...local.impulses]
       .sort((a, b) => b.date.localeCompare(a.date));
   }
 
@@ -49,17 +49,17 @@
 
   function getCurrentPhase() {
     const now = new Date();
-    for (const p of STAFF_DATA.config.phases) {
+    for (const p of CAREER_DATA.config.phases) {
       if (now >= new Date(p.start) && now <= new Date(p.end)) return p;
     }
-    const last = STAFF_DATA.config.phases.at(-1);
+    const last = CAREER_DATA.config.phases.at(-1);
     return now > new Date(last.end)
       ? { ...last, name: "Beyond 90 Days" }
-      : STAFF_DATA.config.phases[0];
+      : CAREER_DATA.config.phases[0];
   }
 
   function getDaysIn() {
-    return Math.max(1, daysBetween(STAFF_DATA.config.startDate, today()) + 1);
+    return Math.max(1, daysBetween(CAREER_DATA.config.startDate, today()) + 1);
   }
 
   function formatDate(d) {
@@ -120,15 +120,15 @@
     const impulses = getAllImpulses();
     const evidence = getAllEvidence();
     const delegated = impulses.filter(i => i.result !== "slipped").length;
-    const staffPct  = impulses.length ? Math.round(delegated / impulses.length * 100) : 0;
+    const practicePct  = impulses.length ? Math.round(delegated / impulses.length * 100) : 0;
 
     el.innerHTML = `
       <div class="page-header">
-        <h2>Good ${getGreeting()}, ${STAFF_DATA.config.name.split(" ")[0]}</h2>
-        <p>Day ${daysIn} as ${STAFF_DATA.config.role} · Phase ${phase.id}: ${phase.name}</p>
+        <h2>Good ${getGreeting()}, ${CAREER_DATA.config.name.split(" ")[0]}</h2>
+        <p>Day ${daysIn} as ${CAREER_DATA.config.role} · Phase ${phase.id}: ${phase.name}</p>
       </div>
 
-      <div class="phase-timeline">${STAFF_DATA.config.phases.map(p => {
+      <div class="phase-timeline">${CAREER_DATA.config.phases.map(p => {
         const isCurrent = p.id === phase.id;
         const isComplete = new Date() > new Date(p.end);
         const phasePct = isCurrent
@@ -162,8 +162,8 @@
               <div><div style="font-size:2rem;font-weight:800;color:var(--clr-done)">${delegated}</div><div style="font-size:.75rem;color:var(--text-secondary)">Delegated / Coached</div></div>
               <div><div style="font-size:2rem;font-weight:800;color:var(--clr-urgent)">${impulses.length - delegated}</div><div style="font-size:.75rem;color:var(--text-secondary)">Slipped</div></div>
             </div>
-            <div class="progress-bar"><div class="fill green" style="width:${staffPct}%"></div></div>
-            <div style="text-align:center;font-size:.75rem;color:var(--text-secondary);margin-top:8px">${staffPct}% coached or delegated (self-reported)</div>
+            <div class="progress-bar"><div class="fill green" style="width:${practicePct}%"></div></div>
+            <div style="text-align:center;font-size:.75rem;color:var(--text-secondary);margin-top:8px">${practicePct}% coached or delegated (self-reported)</div>
           ` : '<div class="empty-state"><p>Log your first impulse catch to start tracking</p></div>'}
         </div>
       </div>
@@ -182,7 +182,7 @@
       </div>`;
   }
 
-  // ── Section: 30/60/90 Plan ──────────────────────────────────
+  // ── Section: Development Plan ──────────────────────────────────
   function renderPlan(el) {
     const todos = getTodos();
     el.innerHTML = `
@@ -190,7 +190,7 @@
         <h2>Development Plan</h2>
         <p>Track progress through each phase of your ramp-up</p>
       </div>
-      ${STAFF_DATA.config.phases.map(phase => {
+      ${CAREER_DATA.config.phases.map(phase => {
         const items = todos.filter(t => t.phase === phase.id);
         const done = items.filter(t => t.status === "done").length;
         const pct = items.length ? Math.round(done / items.length * 100) : 0;
@@ -271,7 +271,7 @@
 
   // ── Section: Weekly Journal ─────────────────────────────────
   function renderJournal(el) {
-    const weeks = STAFF_DATA.weekly;
+    const weeks = CAREER_DATA.weekly;
     el.innerHTML = `
       <div class="page-header"><h2>Weekly Journal</h2><p>Structured reflections to track your growth</p></div>
       ${weeks.length ? `
@@ -388,7 +388,7 @@
       <div class="grid-2" id="people-grid"></div>`;
 
     const renderPeople = ring => {
-      const items = ring === "all" ? STAFF_DATA.stakeholders : STAFF_DATA.stakeholders.filter(p => p.ring === ring);
+      const items = ring === "all" ? CAREER_DATA.stakeholders : CAREER_DATA.stakeholders.filter(p => p.ring === ring);
       document.getElementById("people-grid").innerHTML = items.map(p => `
         <div class="card stakeholder-card ${p.ring}">
           <div class="name">${p.name}</div>
@@ -409,7 +409,7 @@
 
   // ── Section: PAUSE Framework ────────────────────────────────
   function renderPause(el) {
-    const p = STAFF_DATA.pause;
+    const p = CAREER_DATA.pause;
     el.innerHTML = `
       <div class="page-header"><h2>PAUSE Framework</h2><p>Your impulse catcher. Use every time you feel the urge to jump in.</p></div>
       <div class="card"><div class="pause-grid">${p.steps.map(s => `
@@ -446,7 +446,7 @@
 
   // ── Section: Squads ──────────────────────────────────────────
   function renderSquads(el) {
-    const squads = STAFF_DATA.squads || [];
+    const squads = CAREER_DATA.squads || [];
     if (!local.squadNotes) { local.squadNotes = {}; saveLocal(local); }
 
     el.innerHTML = `
@@ -576,7 +576,7 @@
           <div class="form-group"><label>Date</label><input type="date" name="date" value="${today()}" required></div>
           <div class="form-group"><label>Category</label><select name="category" required>
             <option value="coaching">🧑‍🏫 Coaching</option>
-            <option value="architecture">🏗️ Architecture & Design</option>
+            <option value="architecture">🏗️ Planning & Design</option>
             <option value="standards">📋 Standards & Quality</option>
             <option value="risk">⚠️ Risk Communication</option>
             <option value="delivery">🚀 Delivery Impact</option>
@@ -599,7 +599,7 @@
           <div class="form-group"><label>Description</label><textarea name="description" placeholder="What needs to happen and why?" required></textarea></div>
           <div class="grid-2">
             <div class="form-group"><label>Priority</label><select name="priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="urgent">Urgent</option><option value="low">Low</option></select></div>
-            <div class="form-group"><label>Phase</label><select name="phase">${STAFF_DATA.config.phases.map(p=>`<option value="${p.id}" ${p.id===phase.id?"selected":""}>${p.name}</option>`).join("")}</select></div>
+            <div class="form-group"><label>Phase</label><select name="phase">${CAREER_DATA.config.phases.map(p=>`<option value="${p.id}" ${p.id===phase.id?"selected":""}>${p.name}</option>`).join("")}</select></div>
           </div>
           <div class="form-group"><label>Week</label><input type="number" name="week" min="1" max="52" value="${Math.ceil(getDaysIn()/7)}" required></div>
           <div class="btn-row"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-primary">Add</button></div>
@@ -683,7 +683,7 @@
     const blob = new Blob([JSON.stringify(local, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `staff-os-export-${today()}.json`;
+    a.download = `career-compass-export-${today()}.json`;
     a.click();
   };
 
@@ -691,19 +691,19 @@
     const html = document.documentElement;
     const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
     html.setAttribute("data-theme", next);
-    localStorage.setItem("staff-os-theme", next);
+    localStorage.setItem("career-compass-theme", next);
     document.getElementById("theme-btn").textContent = next === "dark" ? "☀️ Light" : "🌙 Dark";
   };
 
   // ── Init ────────────────────────────────────────────────────
   function init() {
-    const saved = localStorage.getItem("staff-os-theme") || "light";
+    const saved = CareerCompassLegacy.readTheme() || "light";
     document.documentElement.setAttribute("data-theme", saved);
     const tb = document.getElementById("theme-btn");
     if (tb) tb.textContent = saved === "dark" ? "☀️ Light" : "🌙 Dark";
 
     const sr = document.getElementById("sidebar-role");
-    if (sr) sr.textContent = STAFF_DATA.config.name;
+    if (sr) sr.textContent = CAREER_DATA.config.name;
 
     const pb = document.getElementById("phase-badge");
     const phase = getCurrentPhase();
