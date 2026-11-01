@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// Staff Engineer OS — Application
+// Career Compass application
 //
 // Zero dependencies. Vanilla JS. Works from file:// or any
 // static host. All quick-capture data persists in localStorage.
@@ -153,7 +153,7 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-header"><h3>🔴 Urgent Actions</h3></div>
-          ${urgent.length ? urgent.map(t => `<div class="todo-item"><div class="todo-content"><div class="todo-title">${t.title}</div><div class="todo-desc">${t.description}</div></div></div>`).join("") : '<div class="empty-state"><p>No urgent actions — nice work!</p></div>'}
+          ${urgent.length ? urgent.map(t => `<div class="todo-item"><div class="todo-content"><div class="todo-title">${t.title}</div><div class="todo-desc">${t.description}</div></div></div>`).join("") : '<div class="empty-state"><p>No urgent actions.</p></div>'}
         </div>
         <div class="card">
           <div class="card-header"><h3>🛑 Impulse Scorecard</h3></div>
@@ -163,7 +163,7 @@
               <div><div style="font-size:2rem;font-weight:800;color:var(--clr-urgent)">${impulses.length - delegated}</div><div style="font-size:.75rem;color:var(--text-secondary)">Slipped</div></div>
             </div>
             <div class="progress-bar"><div class="fill green" style="width:${staffPct}%"></div></div>
-            <div style="text-align:center;font-size:.75rem;color:var(--text-secondary);margin-top:8px">${staffPct}% Staff behaviour</div>
+            <div style="text-align:center;font-size:.75rem;color:var(--text-secondary);margin-top:8px">${staffPct}% coached or delegated (self-reported)</div>
           ` : '<div class="empty-state"><p>Log your first impulse catch to start tracking</p></div>'}
         </div>
       </div>
@@ -176,7 +176,7 @@
       <div class="card">
         <div class="card-header"><h3>💡 Daily Reminder</h3></div>
         <div style="padding:8px 0;font-size:.9rem;line-height:1.7;color:var(--text-secondary)">
-          <em>"Your impact is no longer measured by what you build — it's measured by how well your team delivers."</em>
+          <em>"Choose work that helps you learn, apply a skill and explain the result."</em>
           <br><br>Before solving anything today, ask: <strong>"What approaches have you considered?"</strong>
         </div>
       </div>`;
@@ -187,7 +187,7 @@
     const todos = getTodos();
     el.innerHTML = `
       <div class="page-header">
-        <h2>30 / 60 / 90 Day Plan</h2>
+        <h2>Development Plan</h2>
         <p>Track progress through each phase of your ramp-up</p>
       </div>
       ${STAFF_DATA.config.phases.map(phase => {
@@ -286,7 +286,7 @@
     const renderWeek = (idx) => {
       const w = weeks[idx], r = w.reflection || {};
       document.getElementById("week-content").innerHTML = `<div class="card">
-        <div class="card-header"><h3>${w.week} — ${w.dates}</h3>
+        <div class="card-header"><h3>${w.week} : ${w.dates}</h3>
           <span class="badge" style="background:var(--accent-light);color:var(--accent)">Phase ${w.phase}</span></div>
         <h4 style="font-size:.85rem;font-weight:700;margin-bottom:8px">Priorities</h4>
         <ul class="priorities-list">${(w.priorities||[]).map(p => `<li>${p}</li>`).join("")}</ul>
@@ -321,7 +321,7 @@
     const cats = ["all","coaching","architecture","standards","risk","delivery","cross-team","foundational"];
 
     el.innerHTML = `
-      <div class="page-header"><h2>Evidence Portfolio</h2><p>Staff-level impact evidence for reviews and EOY</p></div>
+      <div class="page-header"><h2>Evidence Portfolio</h2><p>Learning and application evidence for development reviews</p></div>
       <div class="quick-actions"><button class="quick-btn" onclick="openModal('evidence')">🏆 Add Evidence</button></div>
       <div class="filter-tabs" id="ev-filters">${cats.map(c =>
         `<button class="filter-tab ${c==='all'?'active':''}" data-cat="${c}">${c==='all'?'All':c[0].toUpperCase()+c.slice(1)}</button>`
@@ -362,7 +362,7 @@
       ${total ? `<div class="grid-3" style="margin-bottom:24px">
         <div class="card metric green"><div class="value">${good}</div><div class="label">Delegated / Coached</div></div>
         <div class="card metric red"><div class="value">${total-good}</div><div class="label">Slipped</div></div>
-        <div class="card metric accent"><div class="value">${Math.round(good/total*100)}%</div><div class="label">Staff Behaviour Rate</div></div>
+        <div class="card metric accent"><div class="value">${Math.round(good/total*100)}%</div><div class="label">Coached / Delegated Rate</div></div>
       </div>` : ""}
       <div class="card">${total ? impulses.map(i => `
         <div class="log-entry">
@@ -371,7 +371,7 @@
           <div class="log-detail"><strong>Urge:</strong> ${i.urge}</div>
           <div class="log-detail"><strong>Action:</strong> ${i.action}</div>
           <div class="log-tags"><span class="tag ${i.result}">${i.result}</span></div>
-        </div>`).join("") : '<div class="empty-state"><div class="icon">🛑</div><p>Log your first impulse catch — every delegation is evidence.</p></div>'}
+        </div>`).join("") : '<div class="empty-state"><div class="icon">🛑</div><p>Log your first impulse catch : every delegation is evidence.</p></div>'}
       </div>`;
   }
 
@@ -419,7 +419,7 @@
         </div>`).join("")}
       </div></div>
       <div class="pause-emergency">
-        <h4>⚡ Emergency Override — Do It Yourself ONLY When:</h4>
+        <h4>⚡ Emergency Override : Do It Yourself ONLY When:</h4>
         <p>${p.emergencyOverride}</p>
       </div>
       <div class="card" style="margin-top:24px">
@@ -450,7 +450,7 @@
     if (!local.squadNotes) { local.squadNotes = {}; saveLocal(local); }
 
     el.innerHTML = `
-      <div class="page-header"><h2>Squads</h2><p>Your squads — notes, context, decisions, and everything you need to retain</p></div>
+      <div class="page-header"><h2>Groups</h2><p>Practice groups, notes and learning context</p></div>
       <div class="squad-tabs" id="squad-tabs">
         ${squads.map((s, i) => `
           <button class="squad-tab ${i===0?'active':''}" data-squad="${s.id}" style="--squad-clr:${s.colour}">
@@ -566,7 +566,7 @@
           <div class="form-group"><label>Result</label><select name="result" required>
             <option value="delegated">✅ Delegated successfully</option>
             <option value="coached">✅ Coached someone through it</option>
-            <option value="slipped">❌ Slipped — did it myself</option>
+            <option value="slipped">❌ Slipped : did it myself</option>
           </select></div>
           <div class="btn-row"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
         </form>`,
@@ -583,9 +583,9 @@
             <option value="cross-team">🤝 Cross-Team Influence</option>
             <option value="foundational">🔧 Foundational Improvements</option>
           </select></div>
-          <div class="form-group"><label>Who was involved?</label><input type="text" name="who" placeholder="e.g., Jordan, Sam, Marcus"></div>
+          <div class="form-group"><label>Who was involved?</label><input type="text" name="who" placeholder="e.g., practice partner (avoid private details)"></div>
           <div class="form-group"><label>What happened?</label><input type="text" name="summary" placeholder="One-line summary" required></div>
-          <div class="form-group"><label>Detail (optional)</label><textarea name="detail" placeholder="Context, action, outcome — for EOY write-up"></textarea></div>
+          <div class="form-group"><label>Detail (optional)</label><textarea name="detail" placeholder="Context, action and outcome for your development review"></textarea></div>
           <div class="btn-row"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
         </form>`
     };
